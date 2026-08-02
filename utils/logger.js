@@ -3,25 +3,35 @@ const { DateTime } = require("luxon");
 const axios = require("axios");
 
 async function printBanner() {
-  const newVersion = (await axios.get("https://raw.githubusercontent.com/Shinchan0911/Zeid_Bot/refs/heads/main/package.json")).data.version;
   const projectVersion = require("../package.json").version;
   console.clear();
 
   const banner = [
-    chalk.bold.cyanBright("╔══════════════════════════════════════════════════════════════╗"),
-    chalk.bold.cyanBright("║                    D U C M I N H                           ║"),
-    chalk.bold.cyanBright("║                    B O T   S Y S T E M                     ║"),
-    chalk.bold.cyanBright("╚══════════════════════════════════════════════════════════════╝")
+    chalk.bold.cyanBright("╔══════════════════════════════════════════════════════════════════╗"),
+    chalk.bold.cyanBright("║                      D U C M I N H   B O T                    ║"),
+    chalk.bold.cyanBright("║                    S Y S T E M   O N L I N E                  ║"),
+    chalk.bold.cyanBright("╚══════════════════════════════════════════════════════════════════╝")
   ];
 
   banner.forEach(line => console.log(line));
 
+  let newVersion = null;
+  try {
+    const response = await axios.get("https://raw.githubusercontent.com/Shinchan0911/Zeid_Bot/refs/heads/main/package.json", { timeout: 5000 });
+    newVersion = response?.data?.version;
+  } catch (error) {
+    newVersion = null;
+  }
+
   console.log(chalk.gray("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"));
-  console.log("» " + chalk.green("Version: ") + chalk.white(projectVersion));
-  console.log("» " + chalk.green("Author : ") + chalk.white("DucMinh - ZheeScary"));
-  console.log("» " + chalk.green("GitHub : ") + chalk.underline("https://github.com/hoducminh122"));
+  console.log("» " + chalk.green("Version      : ") + chalk.white(projectVersion));
+  console.log("» " + chalk.green("Bot name     : ") + chalk.white(global.config?.name_bot || "DucMinh"));
+  console.log("» " + chalk.green("Prefix       : ") + chalk.white(global.config?.prefix || "/"));
+  console.log("» " + chalk.green("Login mode   : ") + chalk.white(global.config?.login_qrcode ? "QR fallback" : "Cookie"));
+  console.log("» " + chalk.green("Status       : ") + chalk.greenBright("ONLINE"));
+  console.log("» " + chalk.green("Author       : ") + chalk.white("DucMinh"));
   console.log(chalk.gray("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"));
-  if (projectVersion != newVersion) log("New version: " + newVersion + "\n", "warn");
+  if (newVersion && projectVersion != newVersion) log("New version: " + newVersion + "\n", "warn");
 }
 
 function getTimestamp() {

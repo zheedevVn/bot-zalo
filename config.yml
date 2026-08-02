@@ -1,9 +1,9 @@
 account_file: "account.json" # file chứa thông tin login
 
-# cấu hình login bằng qrcode
-login_qrcode: true # tự động chuyển sang qrcode login khi cookie không thể login
+# cấu hình login
+login_qrcode: false # chỉ dùng qrcode khi cookie không hợp lệ và người dùng bật fallback
 qrcode_path: "qr.png" # ảnh qrcode
-save_cookie: true # tư động lưu lại cookie sau khi đăng nhập bắng qrcode xong
+save_cookie: true # tự động lưu lại cookie sau khi đăng nhập bằng qrcode xong
 
 # cấu hình bot
 prefix: "/"

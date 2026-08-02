@@ -58,28 +58,54 @@ try {
   logger.log(`Lỗi khi dọn folder temp: ${error.message || error}`, "error");
 }
 
-logger.log("\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-for (let i = 0; i <= global.users.admin.length - 1; i++) {
-    dem = i + 1;
-    logger.log(` ID ADMIN ${dem}: ${!global.users.admin[i] ? "Trống" : global.users.admin[i]}`);
+logger.log("\n╔══════════════════════ SYSTEM INFO ═══════════════════════╗");
+logger.log(`║ Bot name         : ${global.config.name_bot}`);
+logger.log(`║ Prefix           : ${global.config.prefix}`);
+logger.log(`║ Login mode       : ${global.config.login_qrcode ? "QR fallback" : "Cookie"}`);
+logger.log(`║ Admin count      : ${global.users.admin.length}`);
+logger.log(`║ Support count    : ${global.users.support.length}`);
+logger.log(`║ Bot status       : ONLINE`);
+logger.log(`║ Runtime          : ${new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}`);
+logger.log("╚════════════════════════════════════════════════════════════╝\n");
+
+if (global.users.admin.length) {
+  logger.log("📋 ADMIN LIST");
+  global.users.admin.forEach((id, idx) => logger.log(`${idx + 1}. ${id}`));
 }
-for (let i = 0; i <= global.users.support.length - 1; i++) {
-    dem = i + 1;
-    logger.log(` ID SUPPORT ${dem}: ${!global.users.support[i] ? "Trống" : global.users.support[i]}`);
+if (global.users.support.length) {
+  logger.log("📋 SUPPORT LIST");
+  global.users.support.forEach((id, idx) => logger.log(`${idx + 1}. ${id}`));
 }
-logger.log(` NAME BOT: ${global.config.name_bot}`);
-logger.log(` PREFIX: ${global.config.prefix}`)
-logger.log("┗━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n");
 
 schedule.scheduleJob("0 * * * * *", () => {
     cleanOldMessages();
 });
 
 const api = await login();
-
 global.api = api;
 
-logger.log("Đã đăng nhập thành công", "info");
+logger.log("✅ Đăng nhập thành công bằng Cookie", "info");
+
+try {
+  const groups = typeof api.getAllGroups === "function" ? await api.getAllGroups() : [];
+  logger.log("\n╔══════════════════════ GROUP STATUS ══════════════════════╗");
+  logger.log(`║ Tổng nhóm        : ${Array.isArray(groups) ? groups.length : 0}`);
+  logger.log(`║ Bot status       : ONLINE`);
+  logger.log(`║ Trạng thái       : Hoạt động bình thường`);
+  if (Array.isArray(groups) && groups.length > 0) {
+    groups.forEach((group, index) => {
+      const groupName = group?.name || group?.threadName || `Nhóm ${index + 1}`;
+      const groupId = group?.id || group?.threadId || "Unknown";
+      const memberCount = group?.memberCount || group?.participantCount || "N/A";
+      logger.log(`║ ${String(index + 1).padStart(2, "0")}. ${groupName.slice(0, 28).padEnd(28, " ")} | ${String(groupId).slice(0, 18).padEnd(18, " ")} | ${String(memberCount).padStart(3, " ")} users`);
+    });
+  } else {
+    logger.log("║ Không lấy được danh sách nhóm hoặc không có nhóm nào.");
+  }
+  logger.log("╚════════════════════════════════════════════════════════════╝\n");
+} catch (error) {
+  logger.log(`⚠️ Không thể lấy trạng thái nhóm: ${error.message || error}`, "warn");
+}
 
 await loaderCommand();
 await loaderEvent();
