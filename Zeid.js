@@ -8,6 +8,10 @@ const loaderCommand = require("./core/loader/loaderCommand");
 const loaderEvent = require("./core/loader/loaderEvent");
 const schedule = require("node-schedule");
 const { cleanOldMessages } = require("./utils/index");
+const BOT_VERSION = (() => {
+  const version = require("./package.json").version || "unknown";
+  return version.startsWith("v") ? version : `v${version}`;
+})();
 
 global.client = new Object({
     commands: new Map(),
@@ -103,6 +107,18 @@ try {
     logger.log("║ Không lấy được danh sách nhóm hoặc không có nhóm nào.");
   }
   logger.log("╚════════════════════════════════════════════════════════════╝\n");
+
+  const startupMessage = `🤖 ${global.config.name_bot} ONLINE\n📦 Version: ${BOT_VERSION}\n✅ Bot đã khởi động thành công\n@all`;
+  for (const group of groups) {
+    const groupId = group?.id || group?.threadId;
+    if (!groupId) continue;
+    try {
+      await api.sendMessage({ msg: startupMessage, ttl: 30000 }, groupId, 1);
+      logger.log(`📣 Đã gửi thông báo khởi động đến nhóm: ${groupId}`, "info");
+    } catch (error) {
+      logger.log(`⚠️ Không gửi được thông báo đến nhóm ${groupId}: ${error.message || error}`, "warn");
+    }
+  }
 } catch (error) {
   logger.log(`⚠️ Không thể lấy trạng thái nhóm: ${error.message || error}`, "warn");
 }

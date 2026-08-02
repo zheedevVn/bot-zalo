@@ -2,8 +2,17 @@ const chalk = require('chalk');
 const { DateTime } = require("luxon");
 const axios = require("axios");
 
+function getBotVersion() {
+  try {
+    const version = require("../package.json").version || "unknown";
+    return version.startsWith("v") ? version : `v${version}`;
+  } catch (error) {
+    return "v0.0.0";
+  }
+}
+
 async function printBanner() {
-  const projectVersion = require("../package.json").version;
+  const projectVersion = getBotVersion();
   console.clear();
 
   const banner = [
@@ -24,14 +33,14 @@ async function printBanner() {
   }
 
   console.log(chalk.gray("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"));
-  console.log("» " + chalk.green("Version      : ") + chalk.white(projectVersion));
+  console.log("» " + chalk.green("Version      : ") + chalk.yellow(projectVersion));
   console.log("» " + chalk.green("Bot name     : ") + chalk.white(global.config?.name_bot || "DucMinh"));
   console.log("» " + chalk.green("Prefix       : ") + chalk.white(global.config?.prefix || "/"));
   console.log("» " + chalk.green("Login mode   : ") + chalk.white(global.config?.login_qrcode ? "QR fallback" : "Cookie"));
   console.log("» " + chalk.green("Status       : ") + chalk.greenBright("ONLINE"));
   console.log("» " + chalk.green("Author       : ") + chalk.white("DucMinh"));
   console.log(chalk.gray("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"));
-  if (newVersion && projectVersion != newVersion) log("New version: " + newVersion + "\n", "warn");
+  if (newVersion && projectVersion != `v${newVersion}`) log("New version: v" + newVersion + "\n", "warn");
 }
 
 function getTimestamp() {
