@@ -1,7 +1,7 @@
 account_file: "account.json" # file chứa thông tin login
 
 # cấu hình login
-login_qrcode: false # chỉ dùng qrcode khi cookie không hợp lệ và người dùng bật fallback
+login_qrcode: true # bật fallback QR khi cookie không hợp lệ hoặc chưa có cookie
 qrcode_path: "qr.png" # ảnh qrcode
 save_cookie: true # tự động lưu lại cookie sau khi đăng nhập bằng qrcode xong
 

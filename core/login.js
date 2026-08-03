@@ -80,7 +80,23 @@ async function loginWithCookie() {
         fs.mkdirSync(path.dirname(accountPath), { recursive: true });
 
         const accountData = getJsonData(accountPath);
-        const cookie = getJsonData(accountData.cookie);
+        if (!accountData || typeof accountData !== "object") {
+            throw new Error("File account.json rỗng hoặc không hợp lệ");
+        }
+
+        if (!accountData.cookie) {
+            throw new Error("Chưa có cookie trong file account.json");
+        }
+
+        const cookiePath = path.join(__dirname, `../${accountData.cookie}`);
+        if (!fs.existsSync(cookiePath)) {
+            throw new Error(`File cookie ${accountData.cookie} không tồn tại`);
+        }
+
+        const cookie = getJsonData(cookiePath);
+        if (!cookie || typeof cookie !== "object" || !Object.keys(cookie).length) {
+            throw new Error(`Cookie trong ${accountData.cookie} trống hoặc không hợp lệ`);
+        }
 
         const api = await zalo.login({
             cookie: cookie,
@@ -91,7 +107,7 @@ async function loginWithCookie() {
         return api;
     } catch (error) {
         logger.log(`Lỗi đăng nhập Zalo bằng Cookie: ${error.message || error}`, "error");
-        throw new Error();
+        throw error;
     }
 }
 
@@ -101,10 +117,10 @@ async function login() {
         return await loginWithCookie();
     } catch (error) {
         if (!global.config.login_qrcode) {
-            logger.log("Cookie không hợp lệ", "error");
+            logger.log(`Cookie không hợp lệ: ${error.message || error}`, "error");
             process.exit(1);
         }
-        logger.log("Login bằng Cookie thất bại, chuyển sang QRCode...", "warn");
+        logger.log(`Login bằng Cookie thất bại (${error.message || error}), chuyển sang QRCode...`, "warn");
         return await loginWithQR();
     }
 }
